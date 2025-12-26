@@ -5,14 +5,11 @@
 {{ path.split('/')[-1] if '/' in path else path }}
 {%- endmacro %}
 
-{#- Render a thinking block -#}
+{#- Render a thinking block as blockquote -#}
 {% macro thinking(content) -%}
-<details>
-<summary>💭 Thinking</summary>
+**💭 Thinking**
 
-{{ content }}
-
-</details>
+> {{ content | replace('\n', '\n> ') }}
 {%- endmacro %}
 
 {#- Render a todo list with checkboxes -#}
@@ -45,10 +42,23 @@
 {% macro edit_tool(file_path, old_string, new_string, replace_all) -%}
 **Edit** `{{ filename(file_path) }}`{% if replace_all %} *(replace all)*{% endif %}
 
+<details>
+<summary>{{ file_path }}</summary>
+
 ```diff
 - {{ old_string | replace('\n', '\n- ') }}
 + {{ new_string | replace('\n', '\n+ ') }}
 ```
+
+</details>
+{%- endmacro %}
+
+{#- Render a Read tool call -#}
+{% macro read_tool(file_path) -%}
+**Read** `{{ filename(file_path) }}`
+<details>
+<summary>{{ file_path }}</summary>
+</details>
 {%- endmacro %}
 
 {#- Render a Bash tool call -#}
@@ -91,8 +101,8 @@
 {%- endif %}
 {%- endmacro %}
 
-{#- Create a header from user prompt text (first X words) -#}
-{% macro prompt_header(text, max_words=6) -%}
+{#- Create a header from text (first X words) -#}
+{% macro text_header(text, max_words=6) -%}
 {%- set words = text.split()[:max_words] -%}
 {%- set header = words | join(' ') -%}
 {%- if text.split() | length > max_words -%}
@@ -102,12 +112,15 @@
 {%- endif -%}
 {%- endmacro %}
 
+{#- Long text threshold (characters) -#}
+{%- set LONG_TEXT_THRESHOLD = 300 -%}
+
 {#- Main template starts here -#}
 # Claude Code Transcript
 
 {% for conversation in conversations -%}
 {% if not conversation.is_continuation -%}
-## {{ prompt_header(conversation.user_text) }}
+## {{ text_header(conversation.user_text) }}
 
 {% endif -%}
 {% for message in conversation.messages -%}
@@ -122,6 +135,17 @@
 {% endif -%}
 {% endfor -%}
 {% elif message.role == 'assistant' -%}
+{#- Check if this assistant message has long text content -#}
+{%- set long_text = namespace(content='') -%}
+{%- for block in message.blocks -%}
+{%- if block.type == 'text' and block.text | length >= LONG_TEXT_THRESHOLD -%}
+{%- set long_text.content = block.text -%}
+{%- endif -%}
+{%- endfor -%}
+{%- if long_text.content -%}
+### {{ text_header(long_text.content) }}
+
+{% endif -%}
 {% for block in message.blocks -%}
 {% if block.type == 'thinking' -%}
 {{ thinking(block.thinking) }}
@@ -141,6 +165,9 @@
 
 {% elif block.name == 'Bash' -%}
 {{ bash_tool(block.input.command, block.input.description | default('')) }}
+
+{% elif block.name == 'Read' -%}
+{{ read_tool(block.input.file_path) }}
 
 {% else -%}
 {{ tool_use(block.name, block.input.description | default(''), block.input_json) }}

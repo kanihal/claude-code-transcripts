@@ -1267,7 +1267,10 @@ def local_cmd(
 
     # Determine output directory and whether to open browser
     # If no -o specified, use temp dir and open browser by default
-    auto_open = output is None and not gist and not output_auto
+    # --copy suppresses auto-open behavior
+    auto_open = (
+        output is None and not gist and not output_auto and not copy_to_clipboard
+    )
     if output_auto:
         # Use -o as parent dir (or current dir), with auto-named subdirectory
         parent_dir = Path(output) if output else Path(".")
@@ -1380,7 +1383,10 @@ def json_cmd(
     """Convert a Claude Code session JSON/JSONL file to HTML."""
     # Determine output directory and whether to open browser
     # If no -o specified, use temp dir and open browser by default
-    auto_open = output is None and not gist and not output_auto
+    # --copy suppresses auto-open behavior
+    auto_open = (
+        output is None and not gist and not output_auto and not copy_to_clipboard
+    )
     if output_auto:
         # Use -o as parent dir (or current dir), with auto-named subdirectory
         parent_dir = Path(output) if output else Path(".")
@@ -1771,7 +1777,10 @@ def web_cmd(
 
     # Determine output directory and whether to open browser
     # If no -o specified, use temp dir and open browser by default
-    auto_open = output is None and not gist and not output_auto
+    # --copy suppresses auto-open behavior
+    auto_open = (
+        output is None and not gist and not output_auto and not copy_to_clipboard
+    )
     if output_auto:
         # Use -o as parent dir (or current dir), with auto-named subdirectory
         parent_dir = Path(output) if output else Path(".")

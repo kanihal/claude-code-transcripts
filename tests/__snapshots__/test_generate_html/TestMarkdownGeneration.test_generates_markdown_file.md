@@ -4,16 +4,13 @@
 
 **User**: Create a simple Python function to add two numbers
 
-<details>
-<summary>💭 Thinking</summary>
+**💭 Thinking**
 
-The user wants a simple addition function. I should:
-1. Create the function
-2. Add a basic test
-
-This is straightforward.
-
-</details>
+> The user wants a simple addition function. I should:
+> 1. Create the function
+> 2. Add a basic test
+> 
+> This is straightforward.
 
 I'll create a simple Python function for you. Let me write it now.
 
@@ -112,6 +109,9 @@ To github.com:example/project.git
 
 **Edit** `math_utils.py`
 
+<details>
+<summary>/project/math_utils.py</summary>
+
 ```diff
 -     return a + b
 - 
@@ -123,6 +123,8 @@ To github.com:example/project.git
 +     return a - b
 + 
 ```
+
+</details>
 
 ```
 File edited successfully
@@ -179,10 +181,15 @@ def example():
 
 **Edit** `test_math.py` *(replace all)*
 
+<details>
+<summary>/project/tests/test_math.py</summary>
+
 ```diff
 - assert subtract(10, 5) == None
 + assert subtract(10, 5) == 5
 ```
+
+</details>
 
 ```
 File edited successfully
@@ -209,6 +216,9 @@ Done! The subtract function is now working and committed.
 
 **Edit** `math_utils.py`
 
+<details>
+<summary>/project/math_utils.py</summary>
+
 ```diff
 -     return a - b
 - 
@@ -220,6 +230,8 @@ Done! The subtract function is now working and committed.
 +     return a * b
 + 
 ```
+
+</details>
 
 ```
 File edited successfully

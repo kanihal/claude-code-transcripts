@@ -1652,3 +1652,33 @@ class TestCopyOption:
         # Should not crash, but show a warning
         assert result.exit_code == 0
         assert "clipboard" in result.output.lower()
+
+    def test_copy_suppresses_auto_open(self, tmp_path, monkeypatch):
+        """Test that --copy without -o does not auto-open browser."""
+        from click.testing import CliRunner
+        from claude_code_transcripts import cli
+        import webbrowser
+
+        fixture_path = Path(__file__).parent / "sample_session.json"
+
+        # Track if webbrowser.open was called
+        browser_opened = []
+
+        def mock_open(url):
+            browser_opened.append(url)
+
+        def mock_copy(text):
+            pass
+
+        monkeypatch.setattr(webbrowser, "open", mock_open)
+        monkeypatch.setattr("claude_code_transcripts.pyperclip.copy", mock_copy)
+
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["json", str(fixture_path), "--copy"],
+        )
+
+        assert result.exit_code == 0
+        # Browser should NOT have been opened since --copy suppresses auto-open
+        assert len(browser_opened) == 0
