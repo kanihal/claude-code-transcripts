@@ -1620,6 +1620,29 @@ class TestUserMessageUI:
         assert "user-only" in html
         assert "display: none" in html or "display:none" in html
 
+    def test_user_only_keeps_continuation_wrappers_visible(self, output_dir):
+        """Continuation wrappers must stay visible in user-only mode.
+
+        The sidebar is built from all .message.user elements, including those
+        inside <details class="continuation">. Hiding the entire wrapper breaks
+        sidebar navigation. Instead, only the summary should be hidden and the
+        wrapper forced open so user messages inside remain scrollable.
+        """
+        fixture_path = Path(__file__).parent / "sample_session.json"
+        generate_html(fixture_path, output_dir)
+
+        html = (output_dir / "index.html").read_text(encoding="utf-8")
+
+        # The CSS must NOT hide the entire details.continuation in user-only mode
+        assert "body.user-only details.continuation { display: none; }" not in html
+
+        # Instead, just the summary inside should be hidden
+        assert "body.user-only details.continuation > summary" in html
+
+        # JS should force continuation details open when entering user-only mode
+        assert "details.continuation" in html
+        assert "d.open = true" in html or ".open = true" in html
+
     def test_truncatable_defaults_to_expanded(self, output_dir):
         """Truncatable content should be expanded by default, not collapsed."""
         fixture_path = Path(__file__).parent / "sample_session.json"
